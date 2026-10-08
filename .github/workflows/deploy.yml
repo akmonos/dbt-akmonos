@@ -1,0 +1,33 @@
+# CD: deploy all dbt models to prod_transformed when changes land on main
+name: dbt deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  dbt-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install dbt-core==1.12.3 dbt-snowflake
+
+      - name: Install dbt packages
+        run: dbt deps
+
+      - name: Build and test in prod
+        run: dbt build --profiles-dir ci --target prod
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
