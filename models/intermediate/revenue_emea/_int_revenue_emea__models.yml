@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: int_revenue_emea__transactions_converted
+    description: "{{ doc('int_revenue_emea__transactions_converted') }}"
+    columns:
+      - name: transaction_monthly_sk
+        description: "{{ doc('int_revenue_emea__transaction_monthly_sk') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: gmrr_eur
+        description: "{{ doc('int_revenue_emea__gmrr_converted') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: gmrr_gbp
+        description: "{{ doc('int_revenue_emea__gmrr_converted') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: gmrr_usd
+        description: "{{ doc('int_revenue_emea__gmrr_converted') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: nmrr_eur
+        description: "{{ doc('int_revenue_emea__nmrr_converted') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: nmrr_gbp
+        description: "{{ doc('int_revenue_emea__nmrr_converted') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: nmrr_usd
+        description: "{{ doc('int_revenue_emea__nmrr_converted') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"

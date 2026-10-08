@@ -1,0 +1,288 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__partners
+    description: "{{ doc('stg_revenue_emea__partners') }} {{ doc('stg_revenue_emea__anonymized_note') }}"
+    columns:
+      - name: partner_key
+        description: "{{ doc('stg_revenue_emea__partner_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: partner_id
+        description: "{{ doc('stg_revenue_emea__partner_id') }}"
+
+      - name: partner_sf_account_hash
+        description: "{{ doc('stg_revenue_emea__partner_sf_account_hash') }}"
+        config:
+          meta:
+            data_classification: "Confidential: Partner PII"
+
+      - name: partner_name
+        description: "{{ doc('stg_revenue_emea__partner_name') }}"
+        config:
+          meta:
+            data_classification: "Confidential: Partner PII"
+
+      - name: partner_billing_country
+        description: "{{ doc('stg_revenue_emea__partner_billing_country') }}"
+
+      - name: partner_account_segmentation
+        description: "{{ doc('stg_revenue_emea__partner_account_segmentation') }}"
+
+      - name: partner_created_at
+        description: "{{ doc('stg_revenue_emea__partner_created_at') }}"
+
+      - name: partner_first_transaction_at
+        description: "{{ doc('stg_revenue_emea__partner_first_transaction_at') }}"
+
+  - name: stg_revenue_emea__currencies
+    description: "{{ doc('stg_revenue_emea__currencies') }}"
+    columns:
+      - name: currency_key
+        description: "{{ doc('stg_revenue_emea__currency_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: currency_api_code
+        description: "{{ doc('stg_revenue_emea__currency_api_code') }}"
+
+  - name: stg_revenue_emea__vendors
+    description: "{{ doc('stg_revenue_emea__vendors') }}"
+    columns:
+      - name: vendor_key
+        description: "{{ doc('stg_revenue_emea__vendor_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: vendor_name
+        description: "{{ doc('stg_revenue_emea__vendor_name') }}"
+
+  - name: stg_revenue_emea__cams
+    description: "{{ doc('stg_revenue_emea__cams') }} {{ doc('stg_revenue_emea__anonymized_note') }}"
+    columns:
+      - name: cam_key
+        description: "{{ doc('stg_revenue_emea__cam_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: cam_name
+        description: "{{ doc('stg_revenue_emea__cam_name') }}"
+        config:
+          meta:
+            data_classification: "Confidential: Staff PII"
+
+  - name: stg_revenue_emea__products
+    description: "{{ doc('stg_revenue_emea__products') }}"
+    columns:
+      - name: product_key
+        description: "{{ doc('stg_revenue_emea__product_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_revenue_emea__regions
+    description: "{{ doc('stg_revenue_emea__regions') }}"
+    columns:
+      - name: country_code
+        description: "{{ doc('stg_revenue_emea__country_code') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: country
+        description: "{{ doc('stg_revenue_emea__country') }}"
+
+      - name: region
+        description: "{{ doc('stg_revenue_emea__region') }}"
+
+  - name: stg_revenue_emea__dates
+    description: "{{ doc('stg_revenue_emea__dates') }}"
+    columns:
+      - name: date_key
+        description: "{{ doc('stg_revenue_emea__date_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: date_day
+        description: "{{ doc('stg_revenue_emea__date_day') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_day_of_month
+        description: "{{ doc('stg_revenue_emea__first_day_of_month') }}"
+
+      - name: last_day_of_month
+        description: "{{ doc('stg_revenue_emea__last_day_of_month') }}"
+
+      - name: year_number
+        description: "{{ doc('stg_revenue_emea__year_number') }}"
+
+      - name: quarter_number
+        description: "{{ doc('stg_revenue_emea__quarter_number') }}"
+
+      - name: month_number
+        description: "{{ doc('stg_revenue_emea__month_number') }}"
+
+      - name: week_of_year
+        description: "{{ doc('stg_revenue_emea__week_of_year') }}"
+
+      - name: day_of_year
+        description: "{{ doc('stg_revenue_emea__day_of_year') }}"
+
+      - name: day_of_month
+        description: "{{ doc('stg_revenue_emea__day_of_month') }}"
+
+      - name: day_of_week
+        description: "{{ doc('stg_revenue_emea__day_of_week') }}"
+
+      - name: year_month_number
+        description: "{{ doc('stg_revenue_emea__year_month_number') }}"
+
+      - name: date_sort_key
+        description: "{{ doc('stg_revenue_emea__date_sort_key') }}"
+
+      - name: month_name
+        description: "{{ doc('stg_revenue_emea__month_name') }}"
+
+      - name: day_name
+        description: "{{ doc('stg_revenue_emea__day_name') }}"
+
+      - name: month_year_label
+        description: "{{ doc('stg_revenue_emea__month_year_label') }}"
+
+      - name: is_weekday
+        description: "{{ doc('stg_revenue_emea__is_weekday') }}"
+
+      - name: is_first_day_of_month
+        description: "{{ doc('stg_revenue_emea__is_first_day_of_month') }}"
+
+  - name: stg_revenue_emea__transactions_monthly
+    description: "{{ doc('stg_revenue_emea__transactions_monthly') }}"
+    columns:
+      - name: partner_key
+        description: "{{ doc('stg_revenue_emea__partner_key') }}"
+        data_tests:
+          - not_null
+
+      - name: cam_key
+        description: "{{ doc('stg_revenue_emea__cam_key') }}"
+
+      - name: vendor_key
+        description: "{{ doc('stg_revenue_emea__vendor_key') }}"
+
+      - name: product_key
+        description: "{{ doc('stg_revenue_emea__product_key') }}"
+
+      - name: currency_key
+        description: "{{ doc('stg_revenue_emea__currency_key') }}"
+
+      - name: currency_api_code
+        description: "{{ doc('stg_revenue_emea__currency_api_code') }}"
+
+      - name: gmrr
+        description: "{{ doc('stg_revenue_emea__gmrr') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: nmrr
+        description: "{{ doc('stg_revenue_emea__nmrr') }}"
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: quantity
+        description: "{{ doc('stg_revenue_emea__quantity') }}"
+
+      - name: eur_conversion_rate
+        description: "{{ doc('stg_revenue_emea__eur_conversion_rate') }}"
+
+      - name: gbp_conversion_rate
+        description: "{{ doc('stg_revenue_emea__gbp_conversion_rate') }}"
+
+      - name: usd_conversion_rate
+        description: "{{ doc('stg_revenue_emea__usd_conversion_rate') }}"
+
+      - name: is_cancelled
+        description: "{{ doc('stg_revenue_emea__is_cancelled') }}"
+
+      - name: charge_month
+        description: "{{ doc('stg_revenue_emea__charge_month') }}"
+        data_tests:
+          - not_null
+
+      - name: started_at
+        description: "{{ doc('stg_revenue_emea__started_at') }}"
+
+      - name: ended_at
+        description: "{{ doc('stg_revenue_emea__ended_at') }}"
+
+  - name: stg_revenue_emea__eur_exchange_rates
+    description: "{{ doc('stg_revenue_emea__exchange_rates') }}"
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - effective_date
+              - source_currency_code
+    columns:
+      - name: effective_date
+        description: "{{ doc('stg_revenue_emea__effective_date') }}"
+
+      - name: base_currency_code
+        description: "{{ doc('stg_revenue_emea__base_currency_code') }}"
+
+      - name: source_currency_code
+        description: "{{ doc('stg_revenue_emea__source_currency_code') }}"
+
+      - name: conversion_rate
+        description: "{{ doc('stg_revenue_emea__conversion_rate') }}"
+
+  - name: stg_revenue_emea__gbp_exchange_rates
+    description: "{{ doc('stg_revenue_emea__exchange_rates') }}"
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - effective_date
+              - source_currency_code
+    columns:
+      - name: effective_date
+        description: "{{ doc('stg_revenue_emea__effective_date') }}"
+
+      - name: base_currency_code
+        description: "{{ doc('stg_revenue_emea__base_currency_code') }}"
+
+      - name: source_currency_code
+        description: "{{ doc('stg_revenue_emea__source_currency_code') }}"
+
+      - name: conversion_rate
+        description: "{{ doc('stg_revenue_emea__conversion_rate') }}"
+
+  - name: stg_revenue_emea__usd_exchange_rates
+    description: "{{ doc('stg_revenue_emea__exchange_rates') }}"
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - effective_date
+              - source_currency_code
+    columns:
+      - name: effective_date
+        description: "{{ doc('stg_revenue_emea__effective_date') }}"
+
+      - name: base_currency_code
+        description: "{{ doc('stg_revenue_emea__base_currency_code') }}"
+
+      - name: source_currency_code
+        description: "{{ doc('stg_revenue_emea__source_currency_code') }}"
+
+      - name: conversion_rate
+        description: "{{ doc('stg_revenue_emea__conversion_rate') }}"

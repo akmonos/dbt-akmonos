@@ -1,0 +1,132 @@
+name: 'dbt_akmonos'
+version: '1.0.0'
+config-version: 2
+
+# dbt guarantees backwards compatibility for all version upgrades until 2.0.0.
+require-dbt-version: [">=1.12.0", "<2.0.0"]
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'dbt_akmonos'
+
+# These configurations specify where dbt should look for different types of files.
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+vars:
+  unknown: 'unk'
+  'dbt_date:time_zone': 'America/Chicago'  # required by dbt_expectations / dbt_date
+  # Data classifications for Akmonos portfolio data.
+  # Applied as column meta tags in yml; drives masking in staging and Snowflake masking policies later.
+  partner_pii_data_classification: 'Confidential: Partner PII'
+  staff_pii_data_classification: 'Confidential: Staff PII'
+  commercially_sensitive_data_classification: 'Restricted: Commercially Sensitive'
+  deidentified_data_classification: 'Restricted: De-identified Data'
+  # dbt_snow_mask variables. Active only when running against the Snowflake target.
+  use_common_masking_policy_db: "False"
+  use_common_masking_policy_schema_only: "True"
+  common_masking_policy_schema: "PUBLIC"
+  create_masking_policy_schema: "False"
+  use_force_applying_masking_policy: "True"
+  # Target names where the full dataset should be used.
+  # NOTE: `full_dataset_target_names` is only used by the `limit_dataset` macro.
+  full_dataset_target_names: ['production', 'prod', 'PROD']
+  # Number of days of data to limit large tables to when developing in non-production targets
+  limit_dataset_filter_days: 7
+  redacted_string: '<Redacted PII>'
+  # Akmonos dbt constraints variables. ENABLE WHEN: constraints macros are written.
+  akmonos_constraints_enabled: false
+  akmonos_constraints_folders: ['models/marts/']
+  akmonos_constraints_types: ['primary_key', 'unique', 'foreign_key', 'not_null']
+  akmonos_constraints_mode: 'safe'   # 'safe', 'strict', 'force'
+  akmonos_constraints_debug: false
+
+flags:
+  warn_error_options:
+    silence:
+      - UnsupportedConstraintMaterialization
+      - ConstraintNotEnforced
+  require_generic_test_arguments_property: true
+
+# ENABLE WHEN: Snowflake target exists (dbt_snow_mask runs Snowflake DDL).
+# on-run-start:
+#   - "{{ dbt_snow_mask.apply_masking_policy('sources') if target.type == 'snowflake' and target.name in ['production', 'prod', 'PROD'] }}"
+
+# ENABLE WHEN: ready to log run results (dbt_artifacts works on Postgres) / constraints macros written.
+# on-run-end:
+#   - "{% if target.name in ['production', 'prod', 'PROD'] %}{{ dbt_artifacts.upload_results(results) }}{% endif %}"
+#   - "{{ akmonos_create_constraints(results) if var('akmonos_constraints_enabled', false) }}"
+
+seeds:
+  +persist_docs:
+    relation: true
+    columns: true
+  +schema: seed_data
+
+# Configuring models: https://docs.getdbt.com/docs/configuring-models
+# These settings can be overridden in the individual model files using the `{{ config(...) }}` macro.
+models:
+  +persist_docs:
+    relation: true
+    columns: true
+  # ENABLE WHEN: Snowflake target exists.
+  # +snowflake_warehouse: "DBT_XS_WH"
+
+  dbt_akmonos:
+    +materialized: view   # default materialization for project is a view
+    # ENABLE WHEN: Snowflake target exists.
+    # +post-hook: "{{ dbt_snow_mask.apply_masking_policy('models') }}"
+
+    anonymize:
+      +enabled: "{{ target.name == 'anonymize' }}"   # Postgres only
+      revenue_emea:
+        +schema: anonymize_revenue_emea
+
+    staging:
+      +enabled: "{{ target.type == 'snowflake' }}"   # Snowflake only
+      +schema: staging   # catch-all schema in case schemas for any new folders are not added below
+      revenue_emea:
+        +schema: stg_revenue_emea
+
+    intermediate:
+      +enabled: "{{ target.type == 'snowflake' }}"
+      +schema: intermediate
+      +materialized: table
+      revenue_emea:
+        +schema: inter_revenue_emea
+
+    marts:
+      +enabled: "{{ target.type == 'snowflake' }}"
+      +schema: marts
+      +materialized: table
+      revenue:
+        +schema: revenue
+      shared_ref:
+        +schema: shared_ref
+
+  dbt_artifacts:
+    +schema: dbt_artifacts
+
+  dbt_snowflake_monitoring:
+    +schema: dbt_snowflake_monitoring
+    +enabled: "{{ target.type == 'snowflake' }}"
+
+snapshots:
+  dbt_akmonos:
+    +persist_docs:
+      relation: true
+      columns: true
+    # ENABLE WHEN: Snowflake target exists.
+    # +post-hook: "{{ dbt_snow_mask.apply_masking_policy('snapshots') }}"
+
+dispatch:
+  - macro_namespace: dbt
+    search_order:
+      - dbt_akmonos
+      - dbt

@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: revenue_emea
+    database: prod_raw
+    schema: revenue_emea
+    tables:
+      - name: fact_transaction_monthly
+      - name: dim_partner
+      - name: dim_product
+      - name: dim_vendor
+      - name: dim_cam
+      - name: dim_currency
+      - name: dim_date
+      - name: regions
+      - name: eur_exchange
+      - name: gbp_exchange
+      - name: usd_exchange

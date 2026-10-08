@@ -1,0 +1,16 @@
+packages:
+  - package: dbt-labs/dbt_utils
+    version: [">=1.4.0", "<2.0.0"]
+
+  - package: metaplane/dbt_expectations
+    version: [">=0.10.0", "<1.0.0"]
+
+  - package: brooklyn-data/dbt_artifacts
+    version: [">=2.11.0", "<3.0.0"]
+
+  # Snowflake-only packages. Installed now, activated when the Snowflake target exists.
+  - package: entechlog/dbt_snow_mask
+    version: [">=0.2.9", "<1.0.0"]
+
+  - package: get-select/dbt_snowflake_monitoring
+    version: [">=5.6.0", "<6.0.0"]

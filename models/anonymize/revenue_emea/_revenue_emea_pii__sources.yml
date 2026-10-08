@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: revenue_emea_pii
+    config:
+      enabled: "{{ target.name == 'anonymize' }}"
+    database: data_workbench
+    schema: raw
+    tables:
+      - name: dim_partner
+      - name: dim_vendor
+      - name: dim_cam
