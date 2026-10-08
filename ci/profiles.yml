@@ -1,4 +1,4 @@
-# CI profile: GitHub Actions connects to Snowflake DEV with credentials from repo secrets
+# CI profile: GitHub Actions connects to Snowflake with credentials from repo secrets
 dbt_akmonos:
   target: ci
   outputs:
@@ -10,5 +10,16 @@ dbt_akmonos:
       role: accountadmin
       database: dev
       schema: ci
+      warehouse: dbt_xs_wh
+      threads: 4
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: accountadmin
+      database: prod_transformed
+      schema: staging
       warehouse: dbt_xs_wh
       threads: 4
