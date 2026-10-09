@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: "{{ doc('revenue__dim_products') }}"
+    columns:
+      - name: product_key
+        data_tests:
+          - unique
+          - not_null

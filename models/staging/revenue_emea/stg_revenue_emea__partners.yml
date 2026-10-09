@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__partners
+    description: "{{ doc('stg_revenue_emea__partners') }} {{ doc('stg_revenue_emea__anonymized_note') }}"
+    columns:
+      - name: partner_key
+        description: "{{ doc('stg_revenue_emea__partner_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: partner_id
+        description: "{{ doc('stg_revenue_emea__partner_id') }}"
+
+      - name: partner_sf_account_hash
+        description: "{{ doc('stg_revenue_emea__partner_sf_account_hash') }}"
+        config:
+          meta:
+            data_classification: "Confidential: Partner PII"
+
+      - name: partner_name
+        description: "{{ doc('stg_revenue_emea__partner_name') }}"
+        config:
+          meta:
+            data_classification: "Confidential: Partner PII"
+
+      - name: partner_billing_country
+        description: "{{ doc('stg_revenue_emea__partner_billing_country') }}"
+
+      - name: partner_account_segmentation
+        description: "{{ doc('stg_revenue_emea__partner_account_segmentation') }}"
+
+      - name: partner_created_at
+        description: "{{ doc('stg_revenue_emea__partner_created_at') }}"
+
+      - name: partner_first_transaction_at
+        description: "{{ doc('stg_revenue_emea__partner_first_transaction_at') }}"

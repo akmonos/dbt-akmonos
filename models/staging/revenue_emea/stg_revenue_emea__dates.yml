@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__dates
+    description: "{{ doc('stg_revenue_emea__dates') }}"
+    columns:
+      - name: date_key
+        description: "{{ doc('stg_revenue_emea__date_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: date_day
+        description: "{{ doc('stg_revenue_emea__date_day') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_day_of_month
+        description: "{{ doc('stg_revenue_emea__first_day_of_month') }}"
+
+      - name: last_day_of_month
+        description: "{{ doc('stg_revenue_emea__last_day_of_month') }}"
+
+      - name: year_number
+        description: "{{ doc('stg_revenue_emea__year_number') }}"
+
+      - name: quarter_number
+        description: "{{ doc('stg_revenue_emea__quarter_number') }}"
+
+      - name: month_number
+        description: "{{ doc('stg_revenue_emea__month_number') }}"
+
+      - name: week_of_year
+        description: "{{ doc('stg_revenue_emea__week_of_year') }}"
+
+      - name: day_of_year
+        description: "{{ doc('stg_revenue_emea__day_of_year') }}"
+
+      - name: day_of_month
+        description: "{{ doc('stg_revenue_emea__day_of_month') }}"
+
+      - name: day_of_week
+        description: "{{ doc('stg_revenue_emea__day_of_week') }}"
+
+      - name: year_month_number
+        description: "{{ doc('stg_revenue_emea__year_month_number') }}"
+
+      - name: date_sort_key
+        description: "{{ doc('stg_revenue_emea__date_sort_key') }}"
+
+      - name: month_name
+        description: "{{ doc('stg_revenue_emea__month_name') }}"
+
+      - name: day_name
+        description: "{{ doc('stg_revenue_emea__day_name') }}"
+
+      - name: month_year_label
+        description: "{{ doc('stg_revenue_emea__month_year_label') }}"
+
+      - name: is_weekday
+        description: "{{ doc('stg_revenue_emea__is_weekday') }}"
+
+      - name: is_first_day_of_month
+        description: "{{ doc('stg_revenue_emea__is_first_day_of_month') }}"

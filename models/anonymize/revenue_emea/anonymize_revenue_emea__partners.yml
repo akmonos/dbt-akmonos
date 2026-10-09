@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: anonymize_revenue_emea__partners
+    description: "{{ doc('anonymize_revenue_emea__partners') }}"

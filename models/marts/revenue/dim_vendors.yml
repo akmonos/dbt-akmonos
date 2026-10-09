@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_vendors
+    description: "{{ doc('revenue__dim_vendors') }}"
+    columns:
+      - name: vendor_key
+        data_tests:
+          - unique
+          - not_null

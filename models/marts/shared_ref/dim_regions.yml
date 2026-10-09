@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_regions
+    description: "{{ doc('shared_ref__dim_regions') }}"
+    columns:
+      - name: country_code
+        data_tests:
+          - unique
+          - not_null

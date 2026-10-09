@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: fct_transactions_monthly
+    description: "{{ doc('revenue__fct_transactions_monthly') }}"
+    columns:
+      - name: transaction_monthly_sk
+        data_tests:
+          - unique
+          - not_null
+
+      - name: partner_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_partners')
+                field: partner_key
+
+      - name: gmrr
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+
+      - name: nmrr
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
