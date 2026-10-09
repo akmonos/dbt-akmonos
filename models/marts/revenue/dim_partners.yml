@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_partners
+    description: "{{ doc('revenue__dim_partners') }}"
+    columns:
+      - name: partner_key
+        data_tests:
+          - unique
+          - not_null

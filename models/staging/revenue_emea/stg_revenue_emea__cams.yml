@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__cams
+    description: "{{ doc('stg_revenue_emea__cams') }} {{ doc('stg_revenue_emea__anonymized_note') }}"
+    columns:
+      - name: cam_key
+        description: "{{ doc('stg_revenue_emea__cam_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: cam_name
+        description: "{{ doc('stg_revenue_emea__cam_name') }}"
+        config:
+          meta:
+            data_classification: "Confidential: Staff PII"

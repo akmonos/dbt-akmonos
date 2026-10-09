@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__vendors
+    description: "{{ doc('stg_revenue_emea__vendors') }}"
+    columns:
+      - name: vendor_key
+        description: "{{ doc('stg_revenue_emea__vendor_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: vendor_name
+        description: "{{ doc('stg_revenue_emea__vendor_name') }}"

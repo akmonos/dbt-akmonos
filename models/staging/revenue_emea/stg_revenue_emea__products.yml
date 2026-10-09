@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__products
+    description: "{{ doc('stg_revenue_emea__products') }}"
+    columns:
+      - name: product_key
+        description: "{{ doc('stg_revenue_emea__product_key') }}"
+        data_tests:
+          - unique
+          - not_null

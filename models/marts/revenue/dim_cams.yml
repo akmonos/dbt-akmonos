@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_cams
+    description: "{{ doc('revenue__dim_cams') }}"
+    columns:
+      - name: cam_key
+        data_tests:
+          - unique
+          - not_null

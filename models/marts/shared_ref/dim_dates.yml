@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_dates
+    description: "{{ doc('shared_ref__dim_dates') }}"
+    columns:
+      - name: date_key
+        data_tests:
+          - unique
+          - not_null

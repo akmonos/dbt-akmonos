@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__currencies
+    description: "{{ doc('stg_revenue_emea__currencies') }}"
+    columns:
+      - name: currency_key
+        description: "{{ doc('stg_revenue_emea__currency_key') }}"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: currency_api_code
+        description: "{{ doc('stg_revenue_emea__currency_api_code') }}"

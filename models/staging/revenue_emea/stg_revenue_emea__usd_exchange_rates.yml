@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: stg_revenue_emea__usd_exchange_rates
+    description: "{{ doc('stg_revenue_emea__exchange_rates') }}"
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - effective_date
+              - source_currency_code
+    columns:
+      - name: effective_date
+        description: "{{ doc('stg_revenue_emea__effective_date') }}"
+
+      - name: base_currency_code
+        description: "{{ doc('stg_revenue_emea__base_currency_code') }}"
+
+      - name: source_currency_code
+        description: "{{ doc('stg_revenue_emea__source_currency_code') }}"
+
+      - name: conversion_rate
+        description: "{{ doc('stg_revenue_emea__conversion_rate') }}"

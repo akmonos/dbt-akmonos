@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_currencies
+    description: "{{ doc('shared_ref__dim_currencies') }}"
+    columns:
+      - name: currency_key
+        data_tests:
+          - unique
+          - not_null
