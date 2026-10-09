@@ -2,7 +2,7 @@
 
 Akmonos is a dbt and Snowflake data platform built to serve governed, AI-ready data marts. This repository holds the SQL logic, tests, and metadata for the platform. Changes merge through CI and deploy to production automatically through GitHub Actions.
 
-The first mart in production is `revenue_star_emea`: a Kimball star schema over anonymized EMEA subscription revenue from a SaaS distributor, validated against the legacy reporting it replaces.
+The first mart in production is `revenue_star_emea`: a Kimball star schema over an anonymized EMEA subscription revenue dataset. Privacy is designed in from the first step: data is anonymized before it ever reaches the cloud, and sensitive columns are classified in metadata for masking in Snowflake.
 
 ## Architecture
 
@@ -40,7 +40,7 @@ A star schema covering monthly subscription revenue across the EMEA region.
 | `SHARED_REF` | `dim_dates`, `dim_currencies`, `dim_regions` |
 | `REVENUE` | `dim_partners`, `dim_vendors`, `dim_cams`, `dim_products`, `fct_transactions_monthly` |
 
-Shared reference dimensions live in `SHARED_REF` so future marts can conform to them. The fact table carries gross and net MRR converted into EUR, GBP, and USD at the row level. Output totals were validated to the cent against the legacy report this mart replaces.
+Shared reference dimensions live in `SHARED_REF` so future marts can conform to them. The fact table carries gross and net MRR converted into EUR, GBP, and USD at the row level. Output totals are reconciled to the cent against the source dataset, verifying the pipeline loses and distorts nothing.
 
 Further marts will be added here as the platform grows.
 
@@ -147,4 +147,4 @@ When a model is deleted or renamed in dbt, the old object persists in Snowflake.
 
 ## About
 
-Built and maintained by Ibby Nosiru. Connect on [LinkedIn](https://www.linkedin.com/in/ibrahim-ibby-n-b6803577/).
+Built and maintained by Ibby Nosiru. Connect on [LinkedIn](https://www.linkedin.com/in/ibrahim-ibby-n-b6803577/)
