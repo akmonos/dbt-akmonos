@@ -54,9 +54,8 @@ flags:
       - ConstraintNotEnforced
   require_generic_test_arguments_property: true
 
-# ENABLE WHEN: Snowflake target exists (dbt_snow_mask runs Snowflake DDL).
-# on-run-start:
-#   - "{{ dbt_snow_mask.apply_masking_policy('sources') if target.type == 'snowflake' and target.name in ['production', 'prod', 'PROD'] }}"
+on-run-start:
+  - "{% if target.type == 'snowflake' %}{{ dbt_snow_mask.create_masking_policy('models') }}{% endif %}"
 
 # ENABLE WHEN: ready to log run results (dbt_artifacts works on Postgres) / constraints macros written.
 # on-run-end:
@@ -80,8 +79,15 @@ models:
 
   dbt_akmonos:
     +materialized: view   # default materialization for project is a view
-    # ENABLE WHEN: Snowflake target exists.
-    # +post-hook: "{{ dbt_snow_mask.apply_masking_policy('models') }}"
+    marts:
+      +enabled: "{{ target.type == 'snowflake' }}"
+      +schema: marts
+      +materialized: table
+      +post-hook: "{{ dbt_snow_mask.apply_masking_policy('models') }}"
+      revenue:
+        +schema: revenue
+      shared_ref:
+        +schema: shared_ref
 
     anonymize:
       +enabled: "{{ target.name == 'anonymize' }}"   # Postgres only
@@ -100,15 +106,6 @@ models:
       +materialized: table
       revenue_emea:
         +schema: inter_revenue_emea
-
-    marts:
-      +enabled: "{{ target.type == 'snowflake' }}"
-      +schema: marts
-      +materialized: table
-      revenue:
-        +schema: revenue
-      shared_ref:
-        +schema: shared_ref
 
   dbt_artifacts:
     +schema: dbt_artifacts

@@ -20,8 +20,46 @@ models:
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: nmrr
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+      - name: gmrr_eur
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+      - name: gmrr_gbp
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+      - name: gmrr_usd
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+      - name: nmrr_eur
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+      - name: nmrr_gbp
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+      - name: nmrr_usd
+        config:
+          meta:
+            data_classification: "Restricted: Commercially Sensitive"
+            masking_policy: mp__restricted__commercially_sensitive__numeric_v1
