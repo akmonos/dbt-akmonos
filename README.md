@@ -128,11 +128,17 @@ Publishing the docs site automatically from CI is on the roadmap.
 
 ## Governance
 
-Commercially sensitive columns are tagged in model yml under `meta.data_classification`. These tags are the contract for downstream masking policies and object tagging in Snowflake, which are on the roadmap. PII is removed in the anonymize layer before data ever reaches the cloud.
+Sensitive columns are classified in model yml under `meta.data_classification`, and commercially sensitive measures also carry a `meta.masking_policy` tag. On every build, a hook creates the masking policy in Snowflake and attaches it to every tagged column, so masking survives each rebuild and ships through the same CI/CD path as the models.
+
+Access is role based, following the dbt Labs loader/transformer/reporter pattern: privileged roles see real values, while the `reporter` role used by BI and AI consumers sees NULL in masked columns. Enforcement lives in Snowflake itself, so it applies to every client that queries the warehouse.
+
+PII never reaches the cloud at all: it is removed in the anonymize layer before load.
 
 ## Maintenance
 
-When a model is deleted or renamed in dbt, the old object persists in Snowflake. Cleanup macros for dropping orphaned relations and stale developer schemas are on the roadmap.
+Deleting or renaming a dbt model does not delete the old table in Snowflake; the leftover object stays behind. Today those leftovers are dropped by hand.
+
+Planned: cleanup macros that find and drop them automatically, including stale developer schemas in `DEV`.
 
 ## Roadmap
 
@@ -140,7 +146,7 @@ When a model is deleted or renamed in dbt, the old object persists in Snowflake.
 - Publish dbt docs automatically from CI
 - SQLFluff linting enforced through pre-commit
 - Branch protection and a production approval gate
-- Masking policies and object tags generated from `data_classification` metadata
+- Snowflake object tags generated from classification metadata
 - Infrastructure as code with Terraform
 - Cleanup macros for orphaned relations and developer schemas
 - AI-ready serving: Snowflake Cortex Search and an MCP server over the marts
