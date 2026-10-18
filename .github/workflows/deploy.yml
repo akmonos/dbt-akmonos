@@ -39,7 +39,7 @@ jobs:
           path: target/manifest.json
           retention-days: 90
       
-            - name: Generate dbt docs
+      - name: Generate dbt docs
         run: dbt docs generate --profiles-dir ci --target prod
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
