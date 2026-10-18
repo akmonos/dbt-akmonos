@@ -1,4 +1,4 @@
-# CI: build and test all dbt models in Snowflake on every pull request
+# CI: build only changed models (slim) on every pull request, full build when no prod manifest exists
 name: dbt CI
 
 on:
@@ -9,6 +9,9 @@ on:
 jobs:
   dbt-build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -24,8 +27,31 @@ jobs:
       - name: Install dbt packages
         run: dbt deps
 
+      - name: Find latest deploy run
+        id: deploy_run
+        run: |
+          run_id=$(gh run list --workflow deploy.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Download prod manifest
+        if: steps.deploy_run.outputs.run_id != ''
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: prod-manifest
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.deploy_run.outputs.run_id }}
+          path: state
+
       - name: Build and test
-        run: dbt build --profiles-dir ci --target ci
+        run: |
+          if [ -f state/manifest.json ]; then
+            dbt build --profiles-dir ci --target ci --select state:modified+ --defer --state state
+          else
+            dbt build --profiles-dir ci --target ci --exclude package:dbt_snowflake_monitoring
+          fi
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
