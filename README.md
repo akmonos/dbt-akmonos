@@ -101,7 +101,7 @@ Further marts will be added here as the platform grows.
    dbt build -s <selection>
    ```
 
-3. Push the branch and open a pull request. CI runs the full project (`dbt build`) into isolated `CI_*` schemas and must pass before merge.
+3. Push the branch and open a pull request. CI compares the branch against the latest production manifest and builds only modified models and everything downstream of them, into isolated `CI_*` schemas, deferring unchanged models to production. It must pass before merge.
 
 4. Merge to `main`. The deploy workflow builds the project into `PROD_TRANSFORMED` automatically. No manual release step.
 
@@ -118,7 +118,7 @@ Every model has a yml file referencing shared doc blocks, so each description is
 - `_<folder>__docs.md` in each model folder holds the doc blocks for that layer.
 - `dbt docs generate && dbt docs serve` builds and serves the documentation site locally.
 
-Publishing the docs site automatically from CI is on the roadmap.
+Every deploy regenerates the dbt docs site and stores it as a build artifact. Publishing to GitHub Pages is enabled when the repository goes public.
 
 ## Conventions
 
@@ -142,8 +142,6 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 
 ## Roadmap
 
-- Slim CI: build only modified models with state comparison and deferral
-- Publish dbt docs automatically from CI
 - SQLFluff linting enforced through pre-commit
 - Branch protection and a production approval gate
 - Snowflake object tags generated from classification metadata
