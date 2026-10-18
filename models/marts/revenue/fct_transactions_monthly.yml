@@ -5,60 +5,109 @@ models:
     description: "{{ doc('revenue__fct_transactions_monthly') }}"
     columns:
       - name: transaction_monthly_sk
+        description: "{{ doc('int_revenue_emea__transaction_monthly_sk') }}"
         data_tests:
           - unique
           - not_null
 
       - name: partner_key
+        description: "{{ doc('stg_revenue_emea__partner_key') }}"
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_partners')
                 field: partner_key
 
+      - name: cam_key
+        description: "{{ doc('stg_revenue_emea__cam_key') }}"
+
+      - name: vendor_key
+        description: "{{ doc('stg_revenue_emea__vendor_key') }}"
+
+      - name: product_key
+        description: "{{ doc('stg_revenue_emea__product_key') }}"
+
+      - name: currency_key
+        description: "{{ doc('stg_revenue_emea__currency_key') }}"
+
+      - name: currency_api_code
+        description: "{{ doc('stg_revenue_emea__currency_api_code') }}"
+
       - name: gmrr
+        description: "{{ doc('stg_revenue_emea__gmrr') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: nmrr
+        description: "{{ doc('stg_revenue_emea__nmrr') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
+      - name: quantity
+        description: "{{ doc('stg_revenue_emea__quantity') }}"
+
+      - name: eur_conversion_rate
+        description: "{{ doc('stg_revenue_emea__eur_conversion_rate') }}"
+
+      - name: gbp_conversion_rate
+        description: "{{ doc('stg_revenue_emea__gbp_conversion_rate') }}"
+
+      - name: usd_conversion_rate
+        description: "{{ doc('stg_revenue_emea__usd_conversion_rate') }}"
+
+      - name: is_cancelled
+        description: "{{ doc('stg_revenue_emea__is_cancelled') }}"
+
+      - name: charge_month
+        description: "{{ doc('stg_revenue_emea__charge_month') }}"
+
+      - name: started_at
+        description: "{{ doc('stg_revenue_emea__started_at') }}"
+
+      - name: ended_at
+        description: "{{ doc('stg_revenue_emea__ended_at') }}"
+
       - name: gmrr_eur
+        description: "{{ doc('int_revenue_emea__gmrr_converted') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: gmrr_gbp
+        description: "{{ doc('int_revenue_emea__gmrr_converted') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: gmrr_usd
+        description: "{{ doc('int_revenue_emea__gmrr_converted') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: nmrr_eur
+        description: "{{ doc('int_revenue_emea__nmrr_converted') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: nmrr_gbp
+        description: "{{ doc('int_revenue_emea__nmrr_converted') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
 
       - name: nmrr_usd
+        description: "{{ doc('int_revenue_emea__nmrr_converted') }}"
         config:
           meta:
             data_classification: "Restricted: Commercially Sensitive"

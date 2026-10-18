@@ -5,6 +5,7 @@ models:
     description: "{{ doc('revenue__dim_products') }}"
     columns:
       - name: product_key
+        description: "{{ doc('stg_revenue_emea__product_key') }}"
         data_tests:
           - unique
           - not_null

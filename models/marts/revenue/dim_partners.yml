@@ -5,6 +5,34 @@ models:
     description: "{{ doc('revenue__dim_partners') }}"
     columns:
       - name: partner_key
+        description: "{{ doc('stg_revenue_emea__partner_key') }}"
         data_tests:
           - unique
           - not_null
+
+      - name: partner_id
+        description: "{{ doc('stg_revenue_emea__partner_id') }}"
+
+      - name: partner_sf_account_hash
+        description: "{{ doc('stg_revenue_emea__partner_sf_account_hash') }}"
+
+      - name: partner_name
+        description: "{{ doc('stg_revenue_emea__partner_name') }}"
+
+      - name: partner_billing_country
+        description: "{{ doc('stg_revenue_emea__partner_billing_country') }}"
+
+      - name: partner_account_segmentation
+        description: "{{ doc('stg_revenue_emea__partner_account_segmentation') }}"
+
+      - name: partner_created_at
+        description: "{{ doc('stg_revenue_emea__partner_created_at') }}"
+
+      - name: partner_first_transaction_at
+        description: "{{ doc('stg_revenue_emea__partner_first_transaction_at') }}"
+
+      - name: partner_billing_country_name
+        description: "{{ doc('revenue__partner_billing_country_name') }}"
+
+      - name: partner_sales_region
+        description: "{{ doc('revenue__partner_sales_region') }}"
