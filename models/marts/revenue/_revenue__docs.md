@@ -29,3 +29,15 @@ Product dimension, one row per product.
 {% docs revenue__fct_transactions_monthly %}
 Monthly transactions fact, one row per subscription line per charge month. Carries the surrogate key, dim keys, and GMRR/NMRR in source currency plus EUR, GBP, and USD at a fixed snapshot rate per currency, matching the original Power BI logic.
 {% enddocs %}
+
+# ************** #
+# Columns        #
+# ************** #
+
+{% docs revenue__partner_billing_country_name %}
+Full country name for the partner's billing country, joined from the regions reference.
+{% enddocs %}
+
+{% docs revenue__partner_sales_region %}
+Sales region the partner's billing country belongs to (UK&I, DACH, Nordics, and so on), joined from the regions reference. Null for partners outside the mapped regions.
+{% enddocs %}

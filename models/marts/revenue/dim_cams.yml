@@ -5,6 +5,10 @@ models:
     description: "{{ doc('revenue__dim_cams') }}"
     columns:
       - name: cam_key
+        description: "{{ doc('stg_revenue_emea__cam_key') }}"
         data_tests:
           - unique
           - not_null
+
+      - name: cam_name
+        description: "{{ doc('stg_revenue_emea__cam_name') }}"

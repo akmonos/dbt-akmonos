@@ -5,6 +5,13 @@ models:
     description: "{{ doc('shared_ref__dim_regions') }}"
     columns:
       - name: country_code
+        description: "{{ doc('stg_revenue_emea__country_code') }}"
         data_tests:
           - unique
           - not_null
+
+      - name: country
+        description: "{{ doc('stg_revenue_emea__country') }}"
+
+      - name: region
+        description: "{{ doc('stg_revenue_emea__region') }}"
