@@ -8,3 +8,4 @@ __pycache__/
 *.duckdb
 *.pbix
 *.csv
+*.p8
