@@ -22,7 +22,7 @@ def get_connection():
     return snowflake.connector.connect(
         account=os.environ["SNOWFLAKE_ACCOUNT"],
         user=os.environ["SNOWFLAKE_USER"],
-        password=os.environ["SNOWFLAKE_PASSWORD"],
+        private_key_file=str(Path(__file__).with_name("rsa_key.p8")),
         role=os.environ.get("SNOWFLAKE_MCP_ROLE", "reporter"),
         warehouse="dbt_xs_wh",
         database="prod_transformed",
@@ -48,9 +48,6 @@ def list_tables() -> str:
             conn.close()
     except Exception as e:
         return f"Tool error: {type(e).__name__}: {e}"
-
-if __name__ == "__main__":
-    mcp.run(transport="stdio")
 
 @mcp.tool()
 def describe_table(table_name: str) -> str:
@@ -104,3 +101,6 @@ def run_query(sql: str) -> str:
             conn.close()
     except Exception as e:
         return f"Tool error: {type(e).__name__}: {e}"
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
