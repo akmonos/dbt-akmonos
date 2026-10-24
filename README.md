@@ -134,6 +134,26 @@ Access is role based, following the dbt Labs loader/transformer/reporter pattern
 
 PII never reaches the cloud at all: it is removed in the anonymize layer before load.
 
+| ACCOUNTADMIN | REPORTER |
+|---|---|
+| ![Real values as ACCOUNTADMIN](docs/images/masking_snowsight_admin.png) | ![Masked values as REPORTER](docs/images/masking_snowsight_reporter.png) |
+
+## AI access through MCP
+
+The `mcp-server/` folder holds a Python MCP server that lets AI clients such as the Claude desktop app query the marts. It exposes three read-only tools:
+
+| Tool | What it does |
+|---|---|
+| `list_tables` | Lists the mart tables with row counts |
+| `describe_table` | Returns a table's columns, data types, and documentation |
+| `run_query` | Runs a SELECT and returns up to 50 rows |
+
+The server signs in to Snowflake with key-pair authentication, so no password is stored anywhere. It connects as the `reporter` role by default, so masking applies to the AI exactly as it does to any other client: revenue columns come back as NULL unless a privileged role is set on purpose.
+
+| As REPORTER (default) | As ACCOUNTADMIN |
+|---|---|
+| ![AI query masked](docs/images/mcp_reporter_masked.png) | ![AI query unmasked](docs/images/mcp_admin_unmasked.png) |
+
 ## Maintenance
 
 Deleting or renaming a dbt model does not delete the old table in Snowflake; the leftover object stays behind. Today those leftovers are dropped by hand.
@@ -147,7 +167,8 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 - Snowflake object tags generated from classification metadata
 - Infrastructure as code with Terraform
 - Cleanup macros for orphaned relations and developer schemas
-- AI-ready serving: Snowflake Cortex Search and an MCP server over the marts
+- Snowflake Cortex Search over the marts
+- Hosted MCP server over HTTP with authentication
 
 ## About
 
