@@ -9,7 +9,8 @@ dbt_akmonos:
       #password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
       user: "{{ env_var('SNOWFLAKE_CI_USER') }}"
       private_key: "{{ env_var('SNOWFLAKE_CI_PRIVATE_KEY') }}"
-      role: accountadmin
+      #role: accountadmin
+      role: transformer
       database: dev
       schema: ci
       warehouse: dbt_xs_wh
@@ -21,8 +22,9 @@ dbt_akmonos:
       #user: "{{ env_var('SNOWFLAKE_USER') }}"
       #password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
       user: "{{ env_var('SNOWFLAKE_CI_USER') }}"
-      private_key: "{{ env_var('SNOWFLAKE_CI_PRIVATE_KEY') }}"  
-      role: accountadmin
+      private_key: "{{ env_var('SNOWFLAKE_CI_PRIVATE_KEY') }}"
+      #role: accountadmin
+      role: transformer
       database: prod_transformed
       schema: staging
       warehouse: dbt_xs_wh
