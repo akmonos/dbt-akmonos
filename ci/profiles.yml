@@ -5,8 +5,10 @@ dbt_akmonos:
     ci:
       type: snowflake
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      user: "{{ env_var('SNOWFLAKE_USER') }}"
-      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      #user: "{{ env_var('SNOWFLAKE_USER') }}"
+      #password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      user: "{{ env_var('SNOWFLAKE_CI_USER') }}"
+      private_key: "{{ env_var('SNOWFLAKE_CI_PRIVATE_KEY') }}"
       role: accountadmin
       database: dev
       schema: ci
@@ -16,8 +18,10 @@ dbt_akmonos:
     prod:
       type: snowflake
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      user: "{{ env_var('SNOWFLAKE_USER') }}"
-      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      #user: "{{ env_var('SNOWFLAKE_USER') }}"
+      #password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      user: "{{ env_var('SNOWFLAKE_CI_USER') }}"
+      private_key: "{{ env_var('SNOWFLAKE_CI_PRIVATE_KEY') }}"  
       role: accountadmin
       database: prod_transformed
       schema: staging
