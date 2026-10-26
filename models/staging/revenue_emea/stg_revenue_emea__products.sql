@@ -1,13 +1,13 @@
-with source as (
-	select * from {{ source('revenue_emea', 'dim_product') }}
-),
+with
+    source as (
+        select * from {{ source('revenue_emea', 'dim_product') }}
+    ),
 
-renamed as (
-	select
-		-- ids
-		product_key
+    renamed as (
+        select product_key
+        -- ids
 
-	from source
-)
+        from source
+    )
 
 select * from renamed

@@ -33,14 +33,14 @@ jobs:
           #SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_CI_USER: ${{ secrets.SNOWFLAKE_CI_USER }}
           SNOWFLAKE_CI_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_CI_PRIVATE_KEY }}
-      
+
       - name: Save manifest for slim CI
         uses: actions/upload-artifact@v4
         with:
           name: prod-manifest
           path: target/manifest.json
           retention-days: 90
-      
+
       - name: Generate dbt docs
         run: dbt docs generate --profiles-dir ci --target prod
         env:
