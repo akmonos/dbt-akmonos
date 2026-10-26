@@ -1,0 +1,123 @@
+#### General SQLFluff Configuration ####
+[sqlfluff]
+dialect = snowflake
+# The dbt templater compiles each model through dbt (real ref, source and macros) before linting.
+# It connects to Snowflake with the same key-pair profile dbt uses, locally and in GitHub Actions CI.
+templater = dbt
+runaway_limit = 10
+rules = AL01,AL02,AL03,AL05,AM01,AM03,AM04,AM05,AM06,CP01,CP02,CP03,CP04,CP05,CV01,CV02,CV04,CV05,CV08,CV11,JJ01,LT01,LT02,LT03,LT04,LT05,LT06,LT07,LT08,LT09,LT10,LT12,RF02,RF03,ST03,ST05,ST07,ST08
+exclude_rules = None
+warnings = None
+# Note that line length is configured to ignore comments
+max_line_length = 140
+# No file size limit
+large_file_skip_byte_limit = 0
+
+
+#### Templater Configuration ####
+[sqlfluff:templater:dbt]
+project_dir = .
+profile = dbt_akmonos
+target = dev
+
+
+#### Indentation Configuration ####
+# See https://docs.sqlfluff.com/en/stable/layout.html#configuring-indent-locations
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 4
+indented_ctes = True
+
+
+#### Aliasing Configuration ####
+# AL01 Implicit/explicit aliasing of table. https://docs.sqlfluff.com/en/stable/rules.html#rule-AL01
+[sqlfluff:rules:aliasing.table]
+aliasing = explicit
+# AL02 Implicit/explicit aliasing of columns. https://docs.sqlfluff.com/en/stable/rules.html#rule-AL02
+[sqlfluff:rules:aliasing.column]
+aliasing = explicit
+# AL03 Column expression without alias. Use explicit AS clause. https://docs.sqlfluff.com/en/stable/rules.html#rule-AL03
+[sqlfluff:rules:aliasing.expression]
+allow_scalar = False
+# AL05 Tables should not be aliased if that alias is not used. https://docs.sqlfluff.com/en/stable/rules.html#rule-AL05
+
+
+#### Ambiguous Configuration ####
+# AM01 Ambiguous use of DISTINCT in a select statement with group by. https://docs.sqlfluff.com/en/stable/rules.html#rule-AM01
+# AM03 Ambiguous ordering directions for columns in order by clause. https://docs.sqlfluff.com/en/stable/rules.html#rule-AM03
+# AM04 Query produces an unknown number of result columns. https://docs.sqlfluff.com/en/stable/rules.html#rule-AM04
+# AM05 Join clauses should be fully qualified. https://docs.sqlfluff.com/en/stable/rules.html#rule-AM05
+# AM06 Inconsistent column references in GROUP BY/ORDER BY clauses. https://docs.sqlfluff.com/en/stable/rules.html#rule-AM06
+[sqlfluff:rules:ambiguous.column_references]
+group_by_and_order_by_style = implicit
+
+
+#### Capitalisation Configuration ####
+# CP01 Inconsistent capitalisation of keywords. https://docs.sqlfluff.com/en/stable/rules.html#rule-CP01
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+# CP02 Inconsistent capitalisation of unquoted identifiers. https://docs.sqlfluff.com/en/stable/rules.html#rule-CP02
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+# CP03 Inconsistent capitalisation of function names. https://docs.sqlfluff.com/en/stable/rules.html#rule-CP03
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+# CP04 Inconsistent capitalisation of boolean/null literals. https://docs.sqlfluff.com/en/stable/rules.html#rule-CP04
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = lower
+# CP05 Inconsistent capitalisation of datatypes. https://docs.sqlfluff.com/en/stable/rules.html#rule-CP05
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = lower
+
+
+#### Convention Configuration ####
+# CV01 Use != instead of <> for "not equal to" comparisons. https://docs.sqlfluff.com/en/stable/rules.html#rule-CV01
+# CV02 Use COALESCE instead of IFNULL or NVL. https://docs.sqlfluff.com/en/stable/rules.html#rule-CV02
+# CV04 Use consistent syntax to express "count number of rows". https://docs.sqlfluff.com/en/stable/rules.html#rule-CV04
+# CV05 Comparisons with NULL should use "IS" or "IS NOT". https://docs.sqlfluff.com/en/stable/rules.html#rule-CV05
+# CV08 Use left join instead of right join. https://docs.sqlfluff.com/en/stable/rules.html#rule-CV08
+# CV11 Enforce consistent type casting style. https://docs.sqlfluff.com/en/stable/rules.html#rule-CV11
+[sqlfluff:rules:convention.casting_style]
+# Must be one of ['consistent', 'shorthand', 'convert', 'cast'] (shorthand is using "::")
+preferred_type_casting_style = consistent
+
+
+#### Jinja Configuration ####
+# JJ01 Jinja tags should have a single whitespace on either side. https://docs.sqlfluff.com/en/stable/rules.html#rule-JJ01
+
+
+#### Layout Configuration ####
+# See https://docs.sqlfluff.com/en/stable/layout.html#configuring-layout-and-spacing
+# LT01 Inappropriate Spacing. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT01
+# LT02 Incorrect Indentation. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT02
+# LT03 Operators should follow a standard of being after newlines. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT03
+# LT04 Trailing comma enforcement. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT04
+[sqlfluff:layout:type:comma]
+spacing_before = touch
+line_position = trailing
+# LT05 Line is too long. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT05
+[sqlfluff:rules:layout.long_lines]
+ignore_comment_clauses = True
+ignore_comment_lines = True
+# LT06 Function name not immediately followed by parenthesis. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT06
+# LT07 With clause closing bracket should be on a new line. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT07
+# LT08 Blank line expected but not found after CTE closing bracket. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT08
+# LT09 Select targets should be on a new line unless there is only one select target. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT09
+# LT10 SELECT modifiers (e.g. DISTINCT) must be on the same line as SELECT. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT10
+# LT12 Files must end with a single trailing newline. https://docs.sqlfluff.com/en/stable/rules.html#rule-LT12
+
+
+#### References Configuration ####
+# RF02 References should be qualified if select has more than one referenced table/view. https://docs.sqlfluff.com/en/stable/rules.html#rule-RF02
+# RF03 References should be consistent in statements with a single table. https://docs.sqlfluff.com/en/stable/rules.html#rule-RF03
+[sqlfluff:rules:references.consistent]
+single_table_references = unqualified
+
+
+#### Structure Configuration ####
+# ST03 Query defines a CTE (common-table expression) but does not use it. https://docs.sqlfluff.com/en/stable/rules.html#rule-ST03
+# ST05 Join/From clauses should not contain subqueries. Use CTEs instead. https://docs.sqlfluff.com/en/stable/rules.html#rule-ST05
+[sqlfluff:rules:structure.subquery]
+forbid_subquery_in = both
+# ST07 Prefer specifying join keys instead of using USING. https://docs.sqlfluff.com/en/stable/rules.html#rule-ST07
+# ST08 DISTINCT used with parenthesis. https://docs.sqlfluff.com/en/stable/rules.html#rule-ST08

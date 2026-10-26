@@ -1,21 +1,40 @@
 /* Partner dimension. One row per partner, with country name and sales region joined from regions. */
 
-with partners as (
-	select * from {{ ref('stg_revenue_emea__partners') }}
-),
+with
+    partners as (
+        select * from {{ ref('stg_revenue_emea__partners') }}
+    ),
 
-regions as (
-	select * from {{ ref('stg_revenue_emea__regions') }}
-),
+    regions as (
+        select * from {{ ref('stg_revenue_emea__regions') }}
+    ),
 
-joined as (
-	select
-		partners.*,
-		regions.country as partner_billing_country_name,
-		regions.region as partner_sales_region
-	from partners
-	left join regions
-		on partners.partner_billing_country = regions.country_code
-)
+    joined as (
+        select
+            partners.partner_key,
+            partners.partner_id,
+            partners.partner_sf_account_hash,
+            partners.partner_name,
+            partners.partner_billing_country,
+            partners.partner_account_segmentation,
+            partners.partner_created_at,
+            partners.partner_first_transaction_at,
+            regions.country as partner_billing_country_name,
+            regions.region as partner_sales_region
+        from partners
+        left join regions
+            on partners.partner_billing_country = regions.country_code
+    )
 
-select * from joined
+select
+    partner_key,
+    partner_id,
+    partner_sf_account_hash,
+    partner_name,
+    partner_billing_country,
+    partner_account_segmentation,
+    partner_created_at,
+    partner_first_transaction_at,
+    partner_billing_country_name,
+    partner_sales_region
+from joined
