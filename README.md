@@ -52,7 +52,7 @@ Further marts will be added here as the platform grows.
    # Windows PowerShell
    python -m venv ..\dbt_venv
    ..\dbt_venv\Scripts\activate
-   pip install dbt-core dbt-snowflake dbt-postgres
+   pip install dbt-core dbt-snowflake dbt-postgres sqlfluff sqlfluff-templater-dbt pre-commit
    ```
 
 2. Verify with `dbt --version`, then install package dependencies:
@@ -61,7 +61,7 @@ Further marts will be added here as the platform grows.
    dbt deps
    ```
 
-3. Create `~/.dbt/profiles.yml`. Credentials are read from environment variables so no secret ever sits in a file:
+3. Create `~/.dbt/profiles.yml`. Snowflake sign-in uses key-pair authentication, so no password is stored anywhere. The private key stays on your machine and is never committed (`*.p8` is gitignored):
 
    ```yaml
    dbt_akmonos:
@@ -71,7 +71,7 @@ Further marts will be added here as the platform grows.
          type: snowflake
          account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
          user: "{{ env_var('SNOWFLAKE_USER') }}"
-         password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+         private_key_path: "<path to your rsa_key.p8>"
          role: <role>
          warehouse: dbt_xs_wh
          database: dev
@@ -79,10 +79,16 @@ Further marts will be added here as the platform grows.
          threads: 4
    ```
 
-4. Set `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, and `SNOWFLAKE_PASSWORD` as user environment variables, restart your terminal, and confirm the connection:
+4. Set `SNOWFLAKE_ACCOUNT` and `SNOWFLAKE_USER` as user environment variables, restart your terminal, and confirm the connection:
 
    ```
    dbt debug
+   ```
+
+5. Turn on the pre-commit hooks, so every commit is checked before it is created:
+
+   ```
+   pre-commit install
    ```
 
 ## Development workflow
@@ -101,15 +107,38 @@ Further marts will be added here as the platform grows.
    dbt build -s <selection>
    ```
 
-3. Push the branch and open a pull request. CI compares the branch against the latest production manifest and builds only modified models and everything downstream of them, into isolated `CI_*` schemas, deferring unchanged models to production. It must pass before merge.
+3. Commit. Pre-commit runs SQLFluff and the file checks on everything you changed. If a hook fixes a file, the commit stops so you can review the fix; stage it with `git add` and commit again.
 
-4. Merge to `main`. The deploy workflow builds the project into `PROD_TRANSFORMED` automatically. No manual release step.
+4. Push the branch and open a pull request. CI compares the branch against the latest production manifest and builds only modified models and everything downstream of them, into isolated `CI_*` schemas, deferring unchanged models to production. It must pass before merge.
 
-GitHub Actions authenticates to Snowflake through repository secrets injected as environment variables into `ci/profiles.yml`.
+5. Merge to `main`. The deploy workflow builds the project into `PROD_TRANSFORMED` automatically. No manual release step.
+
+GitHub Actions signs in to Snowflake as a dedicated service user with key-pair authentication. The key is held in repository secrets and injected into `ci/profiles.yml`; no password exists for this user.
 
 ## Testing and data quality
 
 Tests are defined in each model's yml and run both locally and in CI as part of `dbt build`, so a model that fails its tests never reaches merge. Every model carries uniqueness and not-null tests on its key, and fact tables carry relationship tests against their dimensions.
+
+## Code quality
+
+SQL style is enforced by [SQLFluff](https://sqlfluff.com/), configured in `.sqlfluff`. It uses the dbt templater, so each model is compiled through dbt into the exact SQL Snowflake runs before it is checked: real `ref()`, `source()`, and macro output, not a guess. The rules follow the dbt Labs style guide.
+
+[pre-commit](https://pre-commit.com/) runs these checks on every commit, configured in `.pre-commit-config.yaml`:
+
+| Hook | What it does |
+|---|---|
+| `sqlfluff-fix` | Rewrites SQL to the house style |
+| `sqlfluff-lint` | Fails the commit on anything it can't fix automatically |
+| `check-yaml` | Catches broken yml before dbt ever parses it |
+| `detect-private-key` | Blocks any commit that contains a private key |
+| `end-of-file-fixer` | Every file ends with a single newline |
+| `trailing-whitespace` | Strips stray spaces at the end of lines |
+
+`.sqlfluffignore` skips `target/`, `dbt_packages/`, `macros/`, and the Postgres-only `models/anonymize/` folder. To check the whole project by hand:
+
+```
+sqlfluff lint models
+```
 
 ## Documentation
 
@@ -125,14 +154,25 @@ Every deploy regenerates the dbt docs site and stores it as a build artifact. Pu
 - One yml file per model (`model.sql` + `model.yml` pairs); descriptions reference doc blocks rather than repeating text.
 - Staging models: `stg_<source>__<entity>`. Intermediate: `int_<source>__<description>`. Marts: `dim_`/`fct_` prefixes.
 - Sources are defined once per source system in a `_<source>__sources.yml` file.
+- Every `ref()` and `source()` sits in an import CTE at the top of the model, so a model's inputs are visible at a glance.
+- Every model ends by naming its output columns explicitly, never `select *`, so a model's output is visible in the code and an upstream column can't slip into a mart unnoticed.
+- Lowercase SQL, four-space indents, trailing commas, and a newline at the end of every file, all enforced by SQLFluff.
+- Settings shared by a whole folder live in `dbt_project.yml`; `config()` in a model is reserved for that model's exceptions.
 
 ## Governance
 
 Sensitive columns are classified in model yml under `meta.data_classification`, and commercially sensitive measures also carry a `meta.masking_policy` tag. On every build, a hook creates the masking policy in Snowflake and attaches it to every tagged column, so masking survives each rebuild and ships through the same CI/CD path as the models.
 
-Access is role based, following the dbt Labs loader/transformer/reporter pattern: privileged roles see real values, while the `reporter` role used by BI and AI consumers sees NULL in masked columns. Enforcement lives in Snowflake itself, so it applies to every client that queries the warehouse.
+Access is role based, following the dbt Labs loader/transformer/reporter pattern:
 
-PII never reaches the cloud at all: it is removed in the anonymize layer before load.
+| Role | Used by | Can do |
+|---|---|---|
+| `transformer` | dbt in CI and deploy | Read `PROD_RAW`, build and own the schemas in `DEV` and `PROD_TRANSFORMED`, create and attach masking policies. Nothing else. |
+| `reporter` | BI tools and the MCP server | Read the marts. Masked columns return NULL. |
+
+CI and deploy run as the least-privilege `transformer` role, not as an admin. If the pipeline's key were ever exposed, it could build tables and nothing more: no access to users, billing, or other databases.
+
+Masking enforcement lives in Snowflake itself, so it applies to every client that queries the warehouse. PII never reaches the cloud at all: it is removed in the anonymize layer before load.
 
 | ACCOUNTADMIN | REPORTER |
 |---|---|
@@ -162,9 +202,10 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 
 ## Roadmap
 
-- SQLFluff linting enforced through pre-commit
 - Branch protection and a production approval gate
+- Semantic layer with MetricFlow: GMRR, NMRR, and VPP defined once as metrics
 - Snowflake object tags generated from classification metadata
+- Automated catalog and lineage with DataHub, ingested on every deploy
 - Infrastructure as code with Terraform
 - Cleanup macros for orphaned relations and developer schemas
 - Snowflake Cortex Search over the marts
@@ -172,4 +213,4 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 
 ## About
 
-Built and maintained by Ibby Nosiru. Connect on [LinkedIn](https://www.linkedin.com/in/ibrahim-ibby-n-b6803577/)
+Built and maintained by Ibby Nosiru. Connect on [LinkedIn](https://www.linkedin.com/in/ibrahim-ibby-n-b6803577/).
