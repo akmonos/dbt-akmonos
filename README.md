@@ -1,6 +1,6 @@
 # Akmonos dbt
 
-Akmonos is a dbt and Snowflake data platform built to serve governed, AI-ready data marts. This repository holds the SQL logic, tests, and metadata for the platform. Changes merge through CI and deploy to production automatically through GitHub Actions.
+Akmonos is a dbt and Snowflake data platform built to serve governed, AI-ready data marts. This repository holds the SQL logic, tests, metrics, and metadata for the platform. Changes merge through CI and deploy to production through GitHub Actions, behind a manual approval gate.
 
 The first mart in production is `revenue_star_emea`: a Kimball star schema over an anonymized EMEA subscription revenue dataset. Privacy is designed in from the first step: data is anonymized before it ever reaches the cloud, and sensitive columns are classified in metadata for masking in Snowflake.
 
@@ -15,7 +15,7 @@ Data flows through four layers, each a folder under `models/`:
 | Intermediate | `models/intermediate/` | table | Business logic: surrogate keys, multi-currency conversion. |
 | Marts | `models/marts/` | table | Dimensional models served to BI and AI consumers. |
 
-Source data is anonymized locally in Postgres, landed in S3, and loaded into Snowflake `PROD_RAW`. All dbt models read from `PROD_RAW` and build into the environment they target.
+Source data is anonymized locally in Postgres, landed in S3, and loaded into Snowflake `PROD_RAW`. All dbt models read from `PROD_RAW` and build into the environment they target. On top of the marts, a semantic layer defines the business metrics once (see [Semantic layer](#semantic-layer)).
 
 ### Environments
 
@@ -25,7 +25,7 @@ One codebase, three destinations, controlled by the target and a custom `generat
 |---|---|---|---|
 | Development | `DEV` | `DBT_<USERNAME>_<LAYER>` | Each developer, locally |
 | CI | `DEV` | `CI_<LAYER>` | GitHub Actions, on every pull request |
-| Production | `PROD_TRANSFORMED` | clean layer names | GitHub Actions, on merge to `main` |
+| Production | `PROD_TRANSFORMED` | clean layer names | GitHub Actions, on merge to `main`, after approval |
 
 Developers never write to production. Code travels through the pipeline; data is rebuilt in each environment from `PROD_RAW`.
 
@@ -44,6 +44,29 @@ Shared reference dimensions live in `SHARED_REF` so future marts can conform to 
 
 Further marts will be added here as the platform grows.
 
+## Semantic layer
+
+Business metrics are defined once, in yml, with [MetricFlow](https://docs.getdbt.com/docs/build/about-metricflow) (the dbt Semantic Layer). Every consumer, whether a dashboard, the MCP server, or an analyst at the command line, gets the same number from the same definition, with no SQL to rewrite.
+
+The semantic model lives inside each model's existing yml using the latest dbt spec: entities on the keys, dimensions on the columns worth slicing by, and simple metrics on the fact. `dim_dates` is configured as the time spine, so any metric can be grouped by day, week, month, quarter, or year.
+
+| Metric | Type | Definition |
+|---|---|---|
+| `total_gmrr_eur`, `total_gmrr_gbp`, `total_gmrr_usd` | simple | Gross monthly recurring revenue, summed in each currency |
+| `total_nmrr_eur`, `total_nmrr_gbp`, `total_nmrr_usd` | simple | Net monthly recurring revenue, summed in each currency |
+| `vendors_per_partner` | ratio | VPP: average number of distinct vendors each partner buys from |
+
+Every metric can be sliced by any dimension reachable through the star schema, for example partner sales region, vendor, account manager, or currency:
+
+```
+mf validate-configs
+mf query --metrics total_gmrr_eur --group-by metric_time__year --order metric_time__year
+mf query --metrics total_gmrr_eur --group-by partner__partner_sales_region
+mf query --metrics vendors_per_partner --group-by metric_time__quarter
+```
+
+The grand-total GMRR returned by MetricFlow reconciles to the cent with the mart tie-out above.
+
 ## Installation
 
 1. Install Python 3 and create a virtual environment:
@@ -52,10 +75,10 @@ Further marts will be added here as the platform grows.
    # Windows PowerShell
    python -m venv ..\dbt_venv
    ..\dbt_venv\Scripts\activate
-   pip install dbt-core dbt-snowflake dbt-postgres sqlfluff sqlfluff-templater-dbt pre-commit
+   pip install dbt-core dbt-snowflake dbt-postgres "dbt-metricflow[dbt-snowflake]" sqlfluff sqlfluff-templater-dbt pre-commit
    ```
 
-2. Verify with `dbt --version`, then install package dependencies:
+2. Verify with `dbt --version` and `mf --version`, then install package dependencies:
 
    ```
    dbt deps
@@ -79,7 +102,7 @@ Further marts will be added here as the platform grows.
          threads: 4
    ```
 
-4. Set `SNOWFLAKE_ACCOUNT` and `SNOWFLAKE_USER` as user environment variables, restart your terminal, and confirm the connection:
+4. Set `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, and `DBT_PROFILES_DIR` (the folder holding `profiles.yml`, which MetricFlow needs) as user environment variables, restart your terminal, and confirm the connection:
 
    ```
    dbt debug
@@ -109,15 +132,15 @@ Further marts will be added here as the platform grows.
 
 3. Commit. Pre-commit runs SQLFluff and the file checks on everything you changed. If a hook fixes a file, the commit stops so you can review the fix; stage it with `git add` and commit again.
 
-4. Push the branch and open a pull request. CI compares the branch against the latest production manifest and builds only modified models and everything downstream of them, into isolated `CI_*` schemas, deferring unchanged models to production. It must pass before merge.
+4. Push the branch and open a pull request. The pull request template lists the validation steps. CI compares the branch against the latest production manifest and builds only modified models and everything downstream of them, into isolated `CI_*` schemas, deferring unchanged models to production. `main` is protected: a pull request, a passing CI check, and an approval are required before merge.
 
-5. Merge to `main`. The deploy workflow builds the project into `PROD_TRANSFORMED` automatically. No manual release step.
+5. Merge to `main`. The deploy workflow pauses at the `production` environment until a reviewer approves it, then builds the project into `PROD_TRANSFORMED`. Only `main` can deploy to production.
 
 GitHub Actions signs in to Snowflake as a dedicated service user with key-pair authentication. The key is held in repository secrets and injected into `ci/profiles.yml`; no password exists for this user.
 
 ## Testing and data quality
 
-Tests are defined in each model's yml and run both locally and in CI as part of `dbt build`, so a model that fails its tests never reaches merge. Every model carries uniqueness and not-null tests on its key, and fact tables carry relationship tests against their dimensions.
+Tests are defined in each model's yml and run both locally and in CI as part of `dbt build`, so a model that fails its tests never reaches merge. Every model carries uniqueness and not-null tests on its key, and fact tables carry relationship tests against their dimensions. Semantic models and metrics are validated against the warehouse with `mf validate-configs`.
 
 ## Code quality
 
@@ -147,7 +170,7 @@ Every model has a yml file referencing shared doc blocks, so each description is
 - `_<folder>__docs.md` in each model folder holds the doc blocks for that layer.
 - `dbt docs generate && dbt docs serve` builds and serves the documentation site locally.
 
-Every deploy regenerates the dbt docs site and stores it as a build artifact. Publishing to GitHub Pages is enabled when the repository goes public.
+Every deploy regenerates the dbt docs site and stores it as a build artifact. Publishing to GitHub Pages is on the roadmap.
 
 ## Conventions
 
@@ -158,6 +181,7 @@ Every deploy regenerates the dbt docs site and stores it as a build artifact. Pu
 - Every model ends by naming its output columns explicitly, never `select *`, so a model's output is visible in the code and an upstream column can't slip into a mart unnoticed.
 - Lowercase SQL, four-space indents, trailing commas, and a newline at the end of every file, all enforced by SQLFluff.
 - Settings shared by a whole folder live in `dbt_project.yml`; `config()` in a model is reserved for that model's exceptions.
+- Semantic models and simple metrics live in the model's own yml; cross-model metrics (ratios, derived) live in a top-level `metrics:` block.
 
 ## Governance
 
@@ -172,7 +196,7 @@ Access is role based, following the dbt Labs loader/transformer/reporter pattern
 
 CI and deploy run as the least-privilege `transformer` role, not as an admin. If the pipeline's key were ever exposed, it could build tables and nothing more: no access to users, billing, or other databases.
 
-Masking enforcement lives in Snowflake itself, so it applies to every client that queries the warehouse. PII never reaches the cloud at all: it is removed in the anonymize layer before load.
+Masking enforcement lives in Snowflake itself, so it applies to every client that queries the warehouse, including metrics queried through the semantic layer. PII never reaches the cloud at all: it is removed in the anonymize layer before load.
 
 | ACCOUNTADMIN | REPORTER |
 |---|---|
@@ -202,8 +226,10 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 
 ## Roadmap
 
-- Branch protection and a production approval gate
-- Semantic layer with MetricFlow: GMRR, NMRR, and VPP defined once as metrics
+- Publish the dbt docs site to GitHub Pages on every deploy
+- Enforce the `arguments` property on generic tests ahead of the dbt v2 upgrade
+- Evaluate the dbt v2 engine (SQLFluff compatibility, package support, CI changes)
+- Streamlit dashboard over the marts and metrics
 - Snowflake object tags generated from classification metadata
 - Automated catalog and lineage with DataHub, ingested on every deploy
 - Infrastructure as code with Terraform
