@@ -3,12 +3,19 @@ version: 2
 models:
   - name: dim_vendors
     description: "{{ doc('revenue__dim_vendors') }}"
+    semantic_model:
+      enabled: true
     columns:
       - name: vendor_key
         description: "{{ doc('stg_revenue_emea__vendor_key') }}"
+        entity:
+          type: primary
+          name: vendor
         data_tests:
           - unique
           - not_null
 
       - name: vendor_name
         description: "{{ doc('stg_revenue_emea__vendor_name') }}"
+        dimension:
+          type: categorical

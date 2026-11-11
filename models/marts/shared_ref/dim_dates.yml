@@ -3,6 +3,8 @@ version: 2
 models:
   - name: dim_dates
     description: "{{ doc('shared_ref__dim_dates') }}"
+    time_spine:
+      standard_granularity_column: date_day
     columns:
       - name: date_key
         description: "{{ doc('stg_revenue_emea__date_key') }}"
@@ -12,6 +14,10 @@ models:
 
       - name: date_day
         description: "{{ doc('stg_revenue_emea__date_day') }}"
+        granularity: day
+        data_tests:
+          - unique
+          - not_null
 
       - name: first_day_of_month
         description: "{{ doc('stg_revenue_emea__first_day_of_month') }}"
