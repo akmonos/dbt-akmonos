@@ -3,15 +3,24 @@ version: 2
 models:
   - name: fct_transactions_monthly
     description: "{{ doc('revenue__fct_transactions_monthly') }}"
+    semantic_model:
+      enabled: true
+    agg_time_dimension: charge_month
     columns:
       - name: transaction_monthly_sk
         description: "{{ doc('int_revenue_emea__transaction_monthly_sk') }}"
+        entity:
+          type: primary
+          name: transaction_monthly
         data_tests:
           - unique
           - not_null
 
       - name: partner_key
         description: "{{ doc('stg_revenue_emea__partner_key') }}"
+        entity:
+          type: foreign
+          name: partner
         data_tests:
           - relationships:
               arguments:
@@ -20,18 +29,32 @@ models:
 
       - name: cam_key
         description: "{{ doc('stg_revenue_emea__cam_key') }}"
+        entity:
+          type: foreign
+          name: cam
 
       - name: vendor_key
         description: "{{ doc('stg_revenue_emea__vendor_key') }}"
+        entity:
+          type: foreign
+          name: vendor
 
       - name: product_key
         description: "{{ doc('stg_revenue_emea__product_key') }}"
+        entity:
+          type: foreign
+          name: product
 
       - name: currency_key
         description: "{{ doc('stg_revenue_emea__currency_key') }}"
+        entity:
+          type: foreign
+          name: currency
 
       - name: currency_api_code
         description: "{{ doc('stg_revenue_emea__currency_api_code') }}"
+        dimension:
+          type: categorical
 
       - name: gmrr
         description: "{{ doc('stg_revenue_emea__gmrr') }}"
@@ -61,9 +84,14 @@ models:
 
       - name: is_cancelled
         description: "{{ doc('stg_revenue_emea__is_cancelled') }}"
+        dimension:
+          type: categorical
 
       - name: charge_month
         description: "{{ doc('stg_revenue_emea__charge_month') }}"
+        granularity: month
+        dimension:
+          type: time
 
       - name: started_at
         description: "{{ doc('stg_revenue_emea__started_at') }}"
@@ -112,3 +140,59 @@ models:
           meta:
             data_classification: "Restricted: Commercially Sensitive"
             masking_policy: mp__restricted__commercially_sensitive__numeric_v1
+
+    metrics:
+      - name: total_gmrr_eur
+        description: Total gross monthly recurring revenue in EUR.
+        type: simple
+        agg: sum
+        expr: gmrr_eur
+
+      - name: total_nmrr_eur
+        description: Total net monthly recurring revenue in EUR.
+        type: simple
+        agg: sum
+        expr: nmrr_eur
+
+      - name: total_gmrr_gbp
+        description: Total gross monthly recurring revenue in GBP.
+        type: simple
+        agg: sum
+        expr: gmrr_gbp
+
+      - name: total_nmrr_gbp
+        description: Total net monthly recurring revenue in GBP.
+        type: simple
+        agg: sum
+        expr: nmrr_gbp
+
+      - name: total_gmrr_usd
+        description: Total gross monthly recurring revenue in USD.
+        type: simple
+        agg: sum
+        expr: gmrr_usd
+
+      - name: total_nmrr_usd
+        description: Total net monthly recurring revenue in USD.
+        type: simple
+        agg: sum
+        expr: nmrr_usd
+
+      - name: partner_vendor_pairs
+        description: Count of distinct partner and vendor combinations with transactions.
+        type: simple
+        agg: count_distinct
+        expr: partner_key || '-' || vendor_key
+
+      - name: distinct_partners
+        description: Number of distinct partners with transactions.
+        type: simple
+        agg: count_distinct
+        expr: partner_key
+
+metrics:
+  - name: vendors_per_partner
+    description: Vendors per partner (VPP). Average number of distinct vendors each partner buys from.
+    type: ratio
+    numerator: partner_vendor_pairs
+    denominator: distinct_partners

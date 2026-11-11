@@ -3,9 +3,14 @@ version: 2
 models:
   - name: dim_partners
     description: "{{ doc('revenue__dim_partners') }}"
+    semantic_model:
+      enabled: true
     columns:
       - name: partner_key
         description: "{{ doc('stg_revenue_emea__partner_key') }}"
+        entity:
+          type: primary
+          name: partner
         data_tests:
           - unique
           - not_null
@@ -18,12 +23,18 @@ models:
 
       - name: partner_name
         description: "{{ doc('stg_revenue_emea__partner_name') }}"
+        dimension:
+          type: categorical
 
       - name: partner_billing_country
         description: "{{ doc('stg_revenue_emea__partner_billing_country') }}"
+        dimension:
+          type: categorical
 
       - name: partner_account_segmentation
         description: "{{ doc('stg_revenue_emea__partner_account_segmentation') }}"
+        dimension:
+          type: categorical
 
       - name: partner_created_at
         description: "{{ doc('stg_revenue_emea__partner_created_at') }}"
@@ -33,6 +44,10 @@ models:
 
       - name: partner_billing_country_name
         description: "{{ doc('revenue__partner_billing_country_name') }}"
+        dimension:
+          type: categorical
 
       - name: partner_sales_region
         description: "{{ doc('revenue__partner_sales_region') }}"
+        dimension:
+          type: categorical

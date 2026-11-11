@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dbt
-        run: pip install dbt-core==1.12.3 dbt-snowflake
+        run: pip install dbt-core==1.12.6 dbt-snowflake
 
       - name: Install dbt packages
         run: dbt deps

@@ -35,9 +35,9 @@ Monthly transactions fact, one row per subscription line per charge month. Carri
 # ************** #
 
 {% docs revenue__partner_billing_country_name %}
-Full country name for the partner's billing country, joined from the regions reference.
+Full country name for the partner's billing country, joined from the regions reference. Falls back to the billing country code when the country is not in the mapped regions.
 {% enddocs %}
 
 {% docs revenue__partner_sales_region %}
-Sales region the partner's billing country belongs to (UK&I, DACH, Nordics, and so on), joined from the regions reference. Null for partners outside the mapped regions.
+Sales region the partner's billing country belongs to (UK&I, DACH, Nordics, and so on), joined from the regions reference. Set to Outside EMEA when the billing country is not in the mapped regions.
 {% enddocs %}

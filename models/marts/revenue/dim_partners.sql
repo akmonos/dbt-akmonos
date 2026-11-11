@@ -1,4 +1,4 @@
-/* Partner dimension. One row per partner, with country name and sales region joined from regions. */
+/* Partner dimension. One row per partner, with country name and sales region joined from regions. Partners billed outside the EMEA region list get sales region Outside EMEA. */
 
 with
     partners as (
@@ -19,8 +19,8 @@ with
             partners.partner_account_segmentation,
             partners.partner_created_at,
             partners.partner_first_transaction_at,
-            regions.country as partner_billing_country_name,
-            regions.region as partner_sales_region
+            coalesce(regions.country, partners.partner_billing_country) as partner_billing_country_name,
+            coalesce(regions.region, 'Outside EMEA') as partner_sales_region
         from partners
         left join regions
             on partners.partner_billing_country = regions.country_code
