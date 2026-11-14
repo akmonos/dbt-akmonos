@@ -4,6 +4,8 @@ Akmonos is a dbt and Snowflake data platform built to serve governed, AI-ready d
 
 The first mart in production is `revenue_star_emea`: a Kimball star schema over an anonymized EMEA subscription revenue dataset. Privacy is designed in from the first step: data is anonymized before it ever reaches the cloud, and sensitive columns are classified in metadata for masking in Snowflake.
 
+Browse the live dbt documentation, including lineage and column descriptions, at [akmonos.github.io/dbt-akmonos](https://akmonos.github.io/dbt-akmonos/).
+
 ## Architecture
 
 Data flows through four layers, each a folder under `models/`:
@@ -170,7 +172,7 @@ Every model has a yml file referencing shared doc blocks, so each description is
 - `_<folder>__docs.md` in each model folder holds the doc blocks for that layer.
 - `dbt docs generate && dbt docs serve` builds and serves the documentation site locally.
 
-Every deploy regenerates the dbt docs site and stores it as a build artifact. Publishing to GitHub Pages is on the roadmap.
+Every deploy regenerates the dbt docs site and publishes it to [GitHub Pages](https://akmonos.github.io/dbt-akmonos/), so the published documentation always matches production.
 
 ## Conventions
 
@@ -226,8 +228,6 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 
 ## Roadmap
 
-- Publish the dbt docs site to GitHub Pages on every deploy
-- Enforce the `arguments` property on generic tests ahead of the dbt v2 upgrade
 - Evaluate the dbt v2 engine (SQLFluff compatibility, package support, CI changes)
 - Streamlit dashboard over the marts and metrics
 - Snowflake object tags generated from classification metadata
