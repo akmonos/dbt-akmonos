@@ -77,7 +77,7 @@ The grand-total GMRR returned by MetricFlow reconciles to the cent with the mart
    # Windows PowerShell
    python -m venv ..\dbt_venv
    ..\dbt_venv\Scripts\activate
-   pip install dbt-core dbt-snowflake dbt-postgres "dbt-metricflow[dbt-snowflake]" sqlfluff sqlfluff-templater-dbt pre-commit
+   pip install dbt-core dbt-snowflake dbt-postgres "dbt-metricflow[dbt-snowflake]" sqlfluff sqlfluff-templater-dbt pre-commit streamlit
    ```
 
 2. Verify with `dbt --version` and `mf --version`, then install package dependencies:
@@ -220,6 +220,22 @@ The server signs in to Snowflake with key-pair authentication, so no password is
 |---|---|
 | ![AI query masked](docs/images/mcp_reporter_masked.png) | ![AI query unmasked](docs/images/mcp_admin_unmasked.png) |
 
+## Dashboard
+
+The `streamlit-app/` folder holds a Streamlit dashboard over the marts. It shows gross and net MRR, partner counts, and vendors per partner, with filters for currency and partner sales region. Picking a region breaks the regional chart down by country.
+
+The dashboard is read-only. It signs in with key-pair authentication and connects as the `reporter` role by default, so the masking policy applies to it exactly as it does to any other client: revenue shows as masked, and the charts switch to partner and vendor counts. Setting `SNOWFLAKE_STREAMLIT_ROLE` to a privileged role shows the revenue.
+
+| As REPORTER (default) | As ACCOUNTADMIN |
+|---|---|
+| ![Dashboard masked](docs/images/streamlit_reporter_masked.png) | ![Dashboard unmasked](docs/images/streamlit_admin_unmasked.png) |
+
+Its queries follow the metric definitions in the semantic layer, and the vendors per partner figure matches the value MetricFlow returns. To run it locally:
+
+```
+streamlit run streamlit-app/app.py
+```
+
 ## Maintenance
 
 Deleting or renaming a dbt model does not delete the old table in Snowflake; the leftover object stays behind. Today those leftovers are dropped by hand.
@@ -229,7 +245,6 @@ Planned: cleanup macros that find and drop them automatically, including stale d
 ## Roadmap
 
 - Evaluate the dbt v2 engine (SQLFluff compatibility, package support, CI changes)
-- Streamlit dashboard over the marts and metrics
 - Snowflake object tags generated from classification metadata
 - Automated catalog and lineage with DataHub, ingested on every deploy
 - Infrastructure as code with Terraform
