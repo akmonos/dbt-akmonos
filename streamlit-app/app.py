@@ -6,9 +6,26 @@ from pathlib import Path
 import pandas as pd
 import snowflake.connector
 import streamlit as st
+from cryptography.hazmat.primitives import serialization
 
-ROLE = os.environ.get("SNOWFLAKE_STREAMLIT_ROLE", "reporter")
 KEY_FILE = Path(__file__).resolve().parent.parent / "mcp-server" / "rsa_key.p8"
+
+
+def hosted_settings():
+    """Return the [snowflake] secrets when the app is hosted, or None when it runs on a laptop."""
+    try:
+        return st.secrets["snowflake"]
+    except Exception:
+        return None
+
+
+HOSTED = hosted_settings()
+
+# hosted: the role comes from the hosting secrets. local: reporter unless an override is set
+if HOSTED is not None:
+    ROLE = HOSTED["role"]
+else:
+    ROLE = os.environ.get("SNOWFLAKE_STREAMLIT_ROLE", "reporter")
 
 # currency label -> (gross column, net column) in fct_transactions_monthly
 CURRENCIES = {
@@ -21,6 +38,22 @@ ALL_REGIONS = "All regions"
 
 
 def get_connection():
+    if HOSTED is not None:
+        # hosted: the private key is stored as text in the hosting secrets, never in the repo
+        key = serialization.load_pem_private_key(HOSTED["private_key"].encode(), password=None)
+        return snowflake.connector.connect(
+            account=HOSTED["account"],
+            user=HOSTED["user"],
+            private_key=key.private_bytes(
+                serialization.Encoding.DER,
+                serialization.PrivateFormat.PKCS8,
+                serialization.NoEncryption(),
+            ),
+            role=ROLE,
+            warehouse="dbt_xs_wh",
+            database="prod_transformed",
+        )
+    # local: the private key is a file on the laptop
     return snowflake.connector.connect(
         account=os.environ["SNOWFLAKE_ACCOUNT"],
         user=os.environ["SNOWFLAKE_USER"],
