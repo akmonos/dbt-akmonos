@@ -6,6 +6,8 @@ The first mart in production is `revenue_star_emea`: a Kimball star schema over 
 
 Browse the live dbt documentation, including lineage and column descriptions, at [akmonos.github.io/dbt-akmonos](https://akmonos.github.io/dbt-akmonos/).
 
+Open the live dashboard at [akmonos-revenue.streamlit.app](https://akmonos-revenue.streamlit.app). It sleeps when idle, so the first load can take a minute.
+
 ## Architecture
 
 Data flows through four layers, each a folder under `models/`:
@@ -229,6 +231,8 @@ The dashboard is read-only. It signs in with key-pair authentication and connect
 | As REPORTER (default) | As ACCOUNTADMIN |
 |---|---|
 | ![Dashboard masked](docs/images/streamlit_reporter_masked.png) | ![Dashboard unmasked](docs/images/streamlit_admin_unmasked.png) |
+
+The dashboard is hosted on Streamlit Community Cloud at [akmonos-revenue.streamlit.app](https://akmonos-revenue.streamlit.app). The hosted app signs in as a dedicated service user that holds only the `reporter` role, with its key held in the hosting service's secrets and never in the repository. It redeploys on every merge to `main`.
 
 Its queries follow the metric definitions in the semantic layer, and the vendors per partner figure matches the value MetricFlow returns. To run it locally:
 
